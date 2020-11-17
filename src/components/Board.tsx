@@ -14,8 +14,7 @@ function Board() {
     "X",
   ]);
   const boardList = board.map((box, index) => {
-    console.log(box);
-    return <Square key={index} {...box} />;
+    return <Square key={index} value={box} />;
   });
 
   return (
