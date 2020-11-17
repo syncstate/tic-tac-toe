@@ -8,7 +8,7 @@ import reportWebVitals from "./reportWebVitals";
 
 const store = createDocStore({
   startScreen: true,
-  currentValue: ["", "", ""],
+  currentValue: ["", "", "", "", "", "", "", "", ""],
   currentTurn: "X",
   history: [],
 });
