@@ -1,20 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
+import { useDoc } from "@syncstate/react";
 import Square from "./Square";
 
 function Board() {
-  const [board, setBoard] = useState([
-    "X",
-    "O",
-    "X",
-    "O",
-    "X",
-    "O",
-    "X",
-    "O",
-    "X",
-  ]);
-  const boardList = board.map((box, index) => {
-    return <Square key={index} value={box} />;
+  const [doc] = useDoc();
+  const boardList = doc.currentValue.map((box, index) => {
+    return <Square key={index} value={index} />;
   });
 
   return (
