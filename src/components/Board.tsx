@@ -3,7 +3,7 @@ import { useDoc } from "@syncstate/react";
 import Square from "./Square";
 
 function Board() {
-  const [doc, setDoc] = useDoc("", Infinity);
+  const [doc, setDoc] = useDoc();
 
   doc.socket.on("allUsers", function (users) {
     setDoc((doc) => {

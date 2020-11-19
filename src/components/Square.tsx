@@ -3,7 +3,7 @@ import { useDoc } from "@syncstate/react";
 const io = require("socket.io-client");
 
 function Square({ value }: { value: string }) {
-  const [doc, setDoc] = useDoc("", Infinity);
+  const [doc, setDoc] = useDoc("", 10);
 
   const checkWinner = () => {
     let winLines = [
