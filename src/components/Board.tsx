@@ -3,7 +3,16 @@ import { useDoc } from "@syncstate/react";
 import Square from "./Square";
 
 function Board() {
-  const [doc] = useDoc();
+  const [doc, setDoc] = useDoc();
+
+  doc.socket.on("allUsers", function (users) {
+    setDoc((doc) => {
+      doc.user1 = users[0];
+      doc.user2 = users[1];
+      doc.currentUser = users[0];
+    });
+  });
+
   const boardList = doc.currentValue.map((box, index) => {
     return <Square key={index} value={index} />;
   });
