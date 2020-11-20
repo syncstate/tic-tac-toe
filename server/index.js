@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const PatchManager = require("./PatchManager");
 const { SyncStateRemote } = require("@syncstate/remote-server");
 const remote = new SyncStateRemote();
+
 var app = express();
 var server = app.listen(8000, function () {
   console.log("listening on port 8000");
@@ -16,13 +17,19 @@ const socketsId = [];
 var patchManager = new PatchManager();
 
 io.on("connection", function (socket) {
-  socketsId.push(socket.id);
-
-  socket.emit("allUsers", socketsId);
+  io.clients((error, clients) => {
+    console.log("connecting");
+    socket.broadcast.emit("disconnection");
+    if (error) throw error;
+    console.log(clients);
+    socket.emit("allUsers", clients);
+  });
 
   socket.on("fetchDoc", (path) => {
     //get all patches
+    console.log("hello", path);
     const patchesList = patchManager.getAllPatches(projectId, path);
+
     if (patchesList) {
       //send each patch to the client
       patchesList.forEach((change) => {
@@ -30,7 +37,6 @@ io.on("connection", function (socket) {
       });
     }
   });
-
   //patches recieved from the client
   socket.on("change", (path, change) => {
     change.origin = socket.id;
@@ -40,11 +46,12 @@ io.on("connection", function (socket) {
   });
 
   const dispose = remote.onChangeReady(socket.id, (path, change) => {
-    //store the patches in js runtime or a persistent storage
     patchManager.store(projectId, path, change);
-
     //broadcast the path to other clients
-
     socket.broadcast.emit("change", path, change);
+  });
+  socket.on("disconnect", () => {
+    console.log("disconnected", socket.id);
+    // socket.emit("disconnection");
   });
 });

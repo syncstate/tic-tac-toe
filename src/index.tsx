@@ -9,13 +9,6 @@ import reportWebVitals from "./reportWebVitals";
 const io = require("socket.io-client");
 
 var socket = io.connect("http://localhost:8000");
-var socketId;
-socket.on("connect", () => {
-  socketId = socket.id;
-  console.log(document);
-});
-
-console.log(socketId);
 
 const store = createDocStore(
   {
@@ -25,20 +18,24 @@ const store = createDocStore(
     history: [],
     user1: "",
     user2: "",
-    name1: "",
-    name2: "",
-    symbol1: "",
-    symbol2: "",
     socket: socket,
     winner: "",
+    draw: false,
+    gameStatus: false,
   },
   [remote.createInitializer()]
 );
 
-store.dispatch(remote.enableRemote("/currentTurn"));
+store.dispatch(remote.enableRemote(""));
 
-// socket.emit("fetchDoc", "/currentTurn");
-// socket.emit("fetchDoc", "/currentValue");
+socket.emit("fetchDoc", "/currentValue");
+socket.emit("fetchDoc", "/currentTurn");
+socket.emit("fetchDoc", "/user1");
+socket.emit("fetchDoc", "/user2");
+socket.emit("fetchDoc", "/draw");
+socket.emit("fetchDoc", "/winner");
+socket.emit("fetchDoc", "/startScreen");
+socket.emit("fetchDoc", "/gameStatus");
 
 store.observe("doc", "/currentTurn", (currentTurn, change) => {
   if (!change.origin) {
@@ -48,11 +45,6 @@ store.observe("doc", "/currentTurn", (currentTurn, change) => {
 store.observe("doc", "/currentValue", (currentValue, change) => {
   if (!change.origin) {
     socket.emit("change", "/currentValue", change);
-  }
-});
-store.observe("doc", "/currentUser", (currentUser, change) => {
-  if (!change.origin) {
-    socket.emit("change", "/currentUser", change);
   }
 });
 store.observe("doc", "/user1", (user1, change) => {
@@ -65,8 +57,29 @@ store.observe("doc", "/user2", (user2, change) => {
     socket.emit("change", "/user2", change);
   }
 });
+store.observe("doc", "/startScreen", (startScreen, change) => {
+  if (!change.origin) {
+    socket.emit("change", "/startScreen", change);
+  }
+});
+store.observe("doc", "/winner", (winner, change) => {
+  if (!change.origin) {
+    socket.emit("change", "/winner", change);
+  }
+});
+store.observe("doc", "/gameStatus", (gameStatus, change) => {
+  if (!change.origin) {
+    socket.emit("change", "/gameStatus", change);
+  }
+});
+store.observe("doc", "/draw", (draw, change) => {
+  if (!change.origin) {
+    socket.emit("change", "/draw", change);
+  }
+});
 
 socket.on("change", (path, patch) => {
+  console.log(patch);
   store.dispatch(remote.applyRemote(path, patch));
 });
 
