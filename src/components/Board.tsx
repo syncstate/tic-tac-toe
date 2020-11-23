@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useDoc } from "@syncstate/react";
 import Square from "./Square";
 import Result from "./Result";
+import { Container, Row, Col, Button } from "react-bootstrap";
 function Board() {
   const [doc, setDoc] = useDoc();
+  let winner = false;
+  useEffect(() => {
+    if (doc.winner === "") checkWinner();
+    if (!winner) areAllBoxesClicked();
+  }, [doc.currentValue]);
 
   //get board list
   const boardList = doc.currentValue.map((box, index) => {
@@ -23,21 +29,23 @@ function Board() {
       ["2", "4", "6"],
     ];
     checkMatch(winLines);
-    if (!isUpdating) areAllBoxesClicked();
   };
 
   //check match
-  var isUpdating = false;
+
   const checkMatch = (winLines) => {
     for (let index = 0; index < winLines.length; index++) {
       const [a, b, c] = winLines[index];
       let board = doc.currentValue;
 
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        isUpdating = true;
+        doc.socket.emit("deletePatches", doc.roomId);
+        winner = true;
+        console.log("winner", winner);
         if (doc.currentTurn === "O") {
           setDoc((doc) => {
             doc.winner = doc.user1;
+
             doc.gameStatus = false;
           });
         } else {
@@ -65,23 +73,32 @@ function Board() {
     });
 
     // Check if all boxes are clicked (filled)
-    if (count === 9 && doc.winner === "") {
-      console.log("board", doc);
+    if (count === 9 && doc.winner === "" && !winner) {
       setDoc((doc) => {
         doc.draw = true;
         doc.gameStatus = false;
       });
     }
   };
-  if (doc.gameStatus) checkWinner();
-  if (!isUpdating) areAllBoxesClicked();
 
   if (!doc.gameStatus) return <Result />;
   else {
     return (
-      <div className="d-flex xs={12} rounded flex-row justify-content-md-around align-content-around flex-wrap h-50 w-50 bg-white">
-        {boardList}
-      </div>
+      <Row className="w-75 h-50">
+        <Col xs={0} md={2}></Col>
+        <Col
+          xs={12}
+          md={8}
+          className="bg-primary d-flex rounded flex-row justify-content-around align-content-around flex-wrap h-100 bg-white"
+        >
+          {boardList}
+        </Col>
+        <Col xs={0} md={2}></Col>
+      </Row>
+
+      // <div className="d-flex rounded flex-row justify-content-md-around align-content-around flex-wrap h-50 w-50 bg-white">
+      //   {boardList}
+      // </div>
     );
   }
 }

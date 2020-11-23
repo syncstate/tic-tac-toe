@@ -33,4 +33,8 @@ module.exports = class PatchManager {
 
     return [];
   }
+  deletePatches(projectId) {
+    this.projectPatchesMap.delete(projectId);
+    console.log("Deleting patches");
+  }
 };
