@@ -19,7 +19,7 @@ function Result() {
 
   return (
     <>
-      <Row className="w-75 h-50">
+      <Row className="w-100 h-50">
         <Col xs={0} md={2}></Col>
 
         <Col

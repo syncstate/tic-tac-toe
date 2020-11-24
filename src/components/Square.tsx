@@ -32,10 +32,13 @@ function Square({ value }: { value: string }) {
       onClick={() => {
         handleClick();
       }}
-      className="d-flex align-items-center justify-content-center rounded mx-2 h-25 w-25 text-white bg-dark"
+      // className="d-flex align-items-center justify-content-center rounded mx-2 h-25 w-25 text-white bg-dark"
+      // style={{ height: "8vw", width: "25vw", backgroundColor: "black" }}
+      className="d-flex align-items-center justify-content-center text-white rounded"
+      style={{ height: "30%", width: "30%", backgroundColor: "black" }}
     >
       {doc.currentValue[value] === "X" ? (
-        <span className="text-danger h2">{doc.currentValue[value]}</span>
+        <span className="text-danger h2">&#x2715;</span>
       ) : (
         <span className="text-warning h2">{doc.currentValue[value]}</span>
       )}

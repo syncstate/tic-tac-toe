@@ -1,59 +1,42 @@
 import React, { useState, useEffect } from "react";
 import { useDoc } from "@syncstate/react";
-import Cookie from "js.cookie";
-import "./App.css";
 
+import "./App.css";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.css";
 import Board from "./components/Board";
 import Score from "./components/Score";
 import Demo from "./components/Demo";
 import { DocStore } from "@syncstate/core";
-import { Socket } from "net";
+
 function App() {
   const [doc, setDoc] = useDoc();
-
-  // doc.socket.emit("fetchDoc", "/currentValue");
-  // doc.socket.emit("fetchDoc", "/currentTurn");
-  // doc.socket.emit("fetchDoc", "/user1");
-  // doc.socket.emit("fetchDoc", "/user2");
-  // doc.socket.emit("fetchDoc", "/draw");
-  // doc.socket.emit("fetchDoc", "/roomId");
-  // doc.socket.emit("fetchDoc", "/winner");
-  // doc.socket.emit("fetchDoc", "/startScreen");
-  // doc.socket.emit("fetchDoc", "/gameStatus");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     console.log("cool");
-    // async function getUsers() {
-    //   var res = await axios.get("http://localhost:8000");
-    //   console.log(res);
-    //   console.log("paaajii");
-    //   if (!Cookie.get("user")) {
-    //     Cookie.set("user", res.data.token);
+
     doc.socket.emit("enterRoom");
-    //  }
+
     doc.socket.on("disconnected", () => {
-      console.log("ok sir paaaaaaaf");
-      alert("Opponent left the game!Refresh for new game!");
+      if (doc.user2 === undefined) alert("Opponent left the game!");
+      console.log("dosccsfgdgdg");
+      window.location.reload(false);
     });
     doc.socket.on("sendRoom", (roomId, users) => {
-      console.log("hellooooo");
       setDoc((doc) => {
         doc.roomId = roomId;
         doc.user1 = users[0];
         doc.user2 = users[1];
       });
     });
-    // }
-
-    // getUsers();
   }, []);
   console.log("app doc", doc);
 
   const startGame = () => {
     if (doc.user2 === undefined) {
-      alert("Searching for player...");
+      setLoading(true);
+      // alert("Searching for player...");
       return;
     }
     setDoc((doc) => {
@@ -67,7 +50,7 @@ function App() {
       <Container fluid>
         <Row style={{ height: "100vh" }}>
           <Col
-            xs={12}
+            xs={0}
             lg={5}
             className="border-right border-dark d-none d-lg-inline d-lg-inline"
           ></Col>
@@ -83,25 +66,37 @@ function App() {
               </div>
 
               {doc.socket.id === doc.user1 || doc.socket.id === doc.user2 ? (
-                <Button
-                  variant="light"
-                  size="lg"
-                  className="text-dark rounded w-50"
-                  onClick={startGame}
-                >
-                  Start Game
-                </Button>
+                <>
+                  <Button
+                    variant="light"
+                    size="lg"
+                    className="text-dark rounded w-50"
+                    onClick={startGame}
+                  >
+                    Start Game
+                  </Button>
+                </>
               ) : null}
             </Col>
           ) : (
             <Col
               xs={12}
               lg={7}
-              className="d-flex flex-column justify-content-around align-items-center"
+              // className="d-flex flex-column justify-content-around h-100 .align-items-sm-start align-items-md-center"
               style={{ backgroundColor: "rgb(148, 148, 148)" }}
             >
-              <Score />
-              <Board />
+              <Row className="h-100">
+                <Col xs={0} md={2} className="d-none d-md-inline "></Col>
+                <Col
+                  xs={12}
+                  md={8}
+                  className="d-flex flex-column justify-content-around align-items-center"
+                >
+                  <Score />
+                  <Board />
+                </Col>
+                <Col xs={0} md={2} className="d-none d-md-inline"></Col>
+              </Row>
             </Col>
           )}
         </Row>

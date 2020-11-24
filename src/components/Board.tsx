@@ -84,16 +84,50 @@ function Board() {
   if (!doc.gameStatus) return <Result />;
   else {
     return (
-      <Row className="w-75 h-50">
-        <Col xs={0} md={2}></Col>
+      <Row className="w-100" style={{ height: "50vh" }}>
+        <Col xs={0} md={1}></Col>
         <Col
           xs={12}
-          md={8}
-          className="bg-primary d-flex rounded flex-row justify-content-around align-content-around flex-wrap h-100 bg-white"
+          md={10}
+          className="bg-primary d-flex rounded flex-row py-3 justify-content-around align-content-around flex-wrap h-100  bg-white"
         >
+          {/* <Row>
+            <Col xs={4}>
+              <Square value={"1"} />
+            </Col>
+            <Col xs={4}>
+              <Square value={"2"} />
+            </Col>
+            <Col xs={4}>
+              <Square value={"3"} />
+            </Col>
+          </Row>
+          <Row>
+            <Col xs={4}>
+              <Square value={"1"} />
+            </Col>
+            <Col xs={4}>
+              {" "}
+              <Square value={"1"} />
+            </Col>
+            <Col xs={4}>
+              <Square value={"1"} />
+            </Col>
+          </Row>
+          <Row>
+            <Col xs={4}>
+              <Square value={"1"} />
+            </Col>
+            <Col xs={4}>
+              <Square value={"1"} />
+            </Col>
+            <Col xs={4}>
+              <Square value={"1"} />
+            </Col>
+          </Row> */}
           {boardList}
         </Col>
-        <Col xs={0} md={2}></Col>
+        <Col xs={0} md={1}></Col>
       </Row>
 
       // <div className="d-flex rounded flex-row justify-content-md-around align-content-around flex-wrap h-50 w-50 bg-white">
