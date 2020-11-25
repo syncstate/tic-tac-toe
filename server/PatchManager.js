@@ -4,8 +4,8 @@ module.exports = class PatchManager {
     this.projectPatchesMap = new Map();
   }
 
-  store(projectId, path, patch) {
-    const projectPatches = this.projectPatchesMap.get(projectId);
+  store(roomId, path, patch) {
+    const projectPatches = this.projectPatchesMap.get(roomId);
 
     if (projectPatches) {
       const pathPatches = projectPatches.get(path);
@@ -18,12 +18,12 @@ module.exports = class PatchManager {
     } else {
       const pathPatchesMap = new Map();
       pathPatchesMap.set(path, [patch]);
-      this.projectPatchesMap.set(projectId, pathPatchesMap);
+      this.projectPatchesMap.set(roomId, pathPatchesMap);
     }
   }
 
-  getAllPatches(projectId, path) {
-    const projectPatches = this.projectPatchesMap.get(projectId);
+  getAllPatches(roomId, path) {
+    const projectPatches = this.projectPatchesMap.get(roomId);
     if (projectPatches) {
       const pathPatches = projectPatches.get(path);
 
@@ -32,7 +32,7 @@ module.exports = class PatchManager {
 
     return [];
   }
-  deletePatches(projectId) {
-    this.projectPatchesMap.delete(projectId);
+  deletePatches(roomId) {
+    this.projectPatchesMap.delete(roomId);
   }
 };

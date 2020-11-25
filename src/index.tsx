@@ -7,16 +7,15 @@ import "./index.css";
 import App from "./App";
 import * as remote from "@syncstate/remote-client";
 import reportWebVitals from "./reportWebVitals";
-const io = require("socket.io-client");
+let io = require("socket.io-client");
 
-var socket = io.connect("http://localhost:8000");
+let socket = io.connect(`${process.env.REACT_APP_KEY}`);
 
 const store = createDocStore(
   {
     startScreen: true,
     currentValue: ["", "", "", "", "", "", "", "", ""],
     currentTurn: "X",
-    history: [],
     user1: "",
     user2: "",
     socket: socket,

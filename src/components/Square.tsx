@@ -9,8 +9,8 @@ function Square({ value }: { value: string }) {
       return;
     }
 
-    var currentUser = doc.socket.id;
-    var moveValid = false;
+    let currentUser = doc.socket.id;
+    let moveValid = false;
     if (doc.currentTurn === "X") {
       if (currentUser === doc.user1) moveValid = true;
     } else if (doc.currentTurn === "O") {
@@ -34,9 +34,9 @@ function Square({ value }: { value: string }) {
       style={{ height: "30%", width: "30%", backgroundColor: "black" }}
     >
       {doc.currentValue[value] === "X" ? (
-        <span className="text-danger display-3 font-weight-bold">&#x2715;</span>
+        <span className="text-danger display-4 font-weight-bold">&#x2715;</span>
       ) : (
-        <span className="text-warning display-3 font-weight-bold">
+        <span className="text-warning display-4 font-weight-bold">
           {doc.currentValue[value]}
         </span>
       )}

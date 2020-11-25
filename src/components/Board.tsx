@@ -32,8 +32,6 @@ function Board() {
     checkMatch(winLines);
   };
 
-  //check match
-
   const checkMatch = (winLines) => {
     for (let index = 0; index < winLines.length; index++) {
       const [a, b, c] = winLines[index];

@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useDoc } from "@syncstate/react";
 import "./App.css";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.css";
-import Board from "./components/Board";
-import Score from "./components/Score";
+import Game from "./components/Game";
 import LeftPanel from "./components/LeftPanel";
+import StartScreen from "./components/StartScreen";
 
 function App() {
   const [doc, setDoc] = useDoc();
-  const [start, setStart] = useState(false);
+  const [gameStarted, setStart] = useState(false);
 
   useEffect(() => {
-    doc.socket.emit("enterRoom");
-    doc.socket.on("sendRoom", (roomId, users) => {
+    doc.socket.emit("roomJoin");
+    doc.socket.on("roomJoined", (roomId, users) => {
       setDoc((doc) => {
         doc.roomId = roomId;
         doc.user1 = users[0];
@@ -41,10 +41,10 @@ function App() {
     setStart(true);
   };
   const checkPlayers = () => {
-    if (doc.loading1 && doc.loading2 && start && doc.user1 && doc.user2) {
+    if (doc.loading1 && doc.loading2 && gameStarted && doc.user1 && doc.user2) {
       setDoc((doc) => {
-        doc.startScreen = false;
         doc.gameStatus = true;
+        doc.startScreen = false;
       });
     }
   };
@@ -63,62 +63,9 @@ function App() {
             <LeftPanel />
           </Col>
           {doc.startScreen ? (
-            <Col
-              xs={12}
-              lg={7}
-              className="d-flex flex-column justify-content-center align-items-center"
-              style={{ backgroundColor: "#6200ea" }}
-            >
-              <div>
-                <h1 className="font-weight-bold text-light display-2">TIC</h1>
-                <h1 className="font-weight-bold text-light display-2">TAC</h1>
-                <h1 className="font-weight-bold text-light display-2">TOE</h1>
-              </div>
-              {start ? (
-                <>
-                  <h3 className="text-white pt-5">Finding Opponents</h3>
-
-                  <div className="lds-ellipsis">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="light"
-                    size="lg"
-                    block
-                    className="text-dark rounded w-75 mt-5"
-                    onClick={startGame}
-                  >
-                    Start Game
-                  </Button>
-                </>
-              )}
-            </Col>
+            <StartScreen gameStarted={gameStarted} startGame={startGame} />
           ) : (
-            <Col
-              xs={12}
-              lg={7}
-              // className="d-flex flex-column justify-content-around h-100 .align-items-sm-start align-items-md-center"
-              style={{ backgroundColor: "#6200ea" }}
-            >
-              <Row className="h-100">
-                <Col xs={0} md={1} className="d-none d-md-inline "></Col>
-                <Col
-                  xs={12}
-                  md={10}
-                  className="d-flex flex-column justify-content-around align-items-center"
-                >
-                  <Score />
-                  <Board />
-                </Col>
-                <Col xs={0} md={1} className="d-none d-md-inline"></Col>
-              </Row>
-            </Col>
+            <Game />
           )}
         </Row>
       </Container>
