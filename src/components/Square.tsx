@@ -1,5 +1,4 @@
 import React from "react";
-import Cookie from "js.cookie";
 import { useDoc } from "@syncstate/react";
 
 function Square({ value }: { value: string }) {
@@ -18,7 +17,6 @@ function Square({ value }: { value: string }) {
       if (currentUser === doc.user2) moveValid = true;
     }
     if (moveValid) {
-      console.log("turn click");
       const curr_player = doc.currentTurn === "X" ? "O" : "X";
       setDoc((doc) => {
         doc.currentValue[value] = doc.currentTurn;
@@ -32,15 +30,15 @@ function Square({ value }: { value: string }) {
       onClick={() => {
         handleClick();
       }}
-      // className="d-flex align-items-center justify-content-center rounded mx-2 h-25 w-25 text-white bg-dark"
-      // style={{ height: "8vw", width: "25vw", backgroundColor: "black" }}
       className="d-flex align-items-center justify-content-center text-white rounded"
       style={{ height: "30%", width: "30%", backgroundColor: "black" }}
     >
       {doc.currentValue[value] === "X" ? (
-        <span className="text-danger h2">&#x2715;</span>
+        <span className="text-danger display-3 font-weight-bold">&#x2715;</span>
       ) : (
-        <span className="text-warning h2">{doc.currentValue[value]}</span>
+        <span className="text-warning display-3 font-weight-bold">
+          {doc.currentValue[value]}
+        </span>
       )}
     </div>
   );

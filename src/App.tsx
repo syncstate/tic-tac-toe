@@ -1,28 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useDoc } from "@syncstate/react";
-
 import "./App.css";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.css";
 import Board from "./components/Board";
 import Score from "./components/Score";
-import Demo from "./components/Demo";
-import { DocStore } from "@syncstate/core";
+import LeftPanel from "./components/LeftPanel";
 
 function App() {
   const [doc, setDoc] = useDoc();
-  const [loading, setLoading] = useState(false);
+  const [start, setStart] = useState(false);
 
   useEffect(() => {
-    console.log("cool");
-
     doc.socket.emit("enterRoom");
-
-    doc.socket.on("disconnected", () => {
-      if (doc.user2 === undefined) alert("Opponent left the game!");
-      console.log("dosccsfgdgdg");
-      window.location.reload(false);
-    });
     doc.socket.on("sendRoom", (roomId, users) => {
       setDoc((doc) => {
         doc.roomId = roomId;
@@ -31,19 +21,35 @@ function App() {
       });
     });
   }, []);
-  console.log("app doc", doc);
 
+  doc.socket.on("disconnected", () => {
+    setStart(false);
+    window.location.reload(false);
+  });
   const startGame = () => {
-    if (doc.user2 === undefined) {
-      setLoading(true);
-      // alert("Searching for player...");
-      return;
+    if (doc.socket.id === doc.user1) {
+      setDoc((doc) => {
+        doc.loading1 = true;
+      });
     }
-    setDoc((doc) => {
-      doc.startScreen = false;
-      doc.gameStatus = true;
-    });
+
+    if (doc.socket.id === doc.user2) {
+      setDoc((doc) => {
+        doc.loading2 = true;
+      });
+    }
+    setStart(true);
   };
+  const checkPlayers = () => {
+    if (doc.loading1 && doc.loading2 && start && doc.user1 && doc.user2) {
+      setDoc((doc) => {
+        doc.startScreen = false;
+        doc.gameStatus = true;
+      });
+    }
+  };
+
+  checkPlayers();
 
   return (
     <div>
@@ -53,49 +59,64 @@ function App() {
             xs={0}
             lg={5}
             className="border-right border-dark d-none d-lg-inline d-lg-inline"
-          ></Col>
+          >
+            <LeftPanel />
+          </Col>
           {doc.startScreen ? (
             <Col
+              xs={12}
+              lg={7}
               className="d-flex flex-column justify-content-center align-items-center"
-              style={{ backgroundColor: "rgb(148, 148, 148)" }}
+              style={{ backgroundColor: "#6200ea" }}
             >
               <div>
                 <h1 className="font-weight-bold text-light display-2">TIC</h1>
                 <h1 className="font-weight-bold text-light display-2">TAC</h1>
                 <h1 className="font-weight-bold text-light display-2">TOE</h1>
               </div>
+              {start ? (
+                <>
+                  <h3 className="text-white pt-5">Finding Opponents</h3>
 
-              {doc.socket.id === doc.user1 || doc.socket.id === doc.user2 ? (
+                  <div className="lds-ellipsis">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                  </div>
+                </>
+              ) : (
                 <>
                   <Button
                     variant="light"
                     size="lg"
-                    className="text-dark rounded w-50"
+                    block
+                    className="text-dark rounded w-75 mt-5"
                     onClick={startGame}
                   >
                     Start Game
                   </Button>
                 </>
-              ) : null}
+              )}
             </Col>
           ) : (
             <Col
               xs={12}
               lg={7}
               // className="d-flex flex-column justify-content-around h-100 .align-items-sm-start align-items-md-center"
-              style={{ backgroundColor: "rgb(148, 148, 148)" }}
+              style={{ backgroundColor: "#6200ea" }}
             >
               <Row className="h-100">
-                <Col xs={0} md={2} className="d-none d-md-inline "></Col>
+                <Col xs={0} md={1} className="d-none d-md-inline "></Col>
                 <Col
                   xs={12}
-                  md={8}
+                  md={10}
                   className="d-flex flex-column justify-content-around align-items-center"
                 >
                   <Score />
                   <Board />
                 </Col>
-                <Col xs={0} md={2} className="d-none d-md-inline"></Col>
+                <Col xs={0} md={1} className="d-none d-md-inline"></Col>
               </Row>
             </Col>
           )}

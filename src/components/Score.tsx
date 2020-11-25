@@ -1,6 +1,5 @@
 import React from "react";
 import { useDoc } from "@syncstate/react";
-import Cookie from "js.cookie";
 import { Row, Col } from "react-bootstrap";
 
 function Score() {
@@ -16,9 +15,9 @@ function Score() {
           <i className="fas fa-user fa-2x mt-1 demo"></i>
           <h3 className="demo">You</h3>
           {doc.socket.id === doc.user1 ? (
-            <h2 className="text-danger font-weight-bold ">&#x2715;</h2>
+            <h2 className="text-danger  font-weight-bold ">&#x2715;</h2>
           ) : (
-            <h2 className="text-warning font-weight-bold">&#x4f;</h2>
+            <h2 className="text-warning  font-weight-bold">&#x4f;</h2>
           )}
         </Col>
         <Col xs={2}></Col>
@@ -29,7 +28,7 @@ function Score() {
           <i className="fas fa-user fa-2x mt-1 demo"></i>
           <h3 className="demo">Opponent</h3>
           {doc.socket.id === doc.user1 ? (
-            <h2 className="text-warning font-weight-bold">&#x4f;</h2>
+            <h2 className="text-warning  font-weight-bold">&#x4f;</h2>
           ) : (
             <h2 className="text-danger font-weight-bold">&#x2715;</h2>
           )}

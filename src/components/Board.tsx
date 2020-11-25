@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDoc } from "@syncstate/react";
 import Square from "./Square";
 import Result from "./Result";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 function Board() {
   const [doc, setDoc] = useDoc();
   let winner = false;
+
   useEffect(() => {
     if (doc.winner === "") checkWinner();
     if (!winner) areAllBoxesClicked();
@@ -41,17 +42,20 @@ function Board() {
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
         doc.socket.emit("deletePatches", doc.roomId);
         winner = true;
-        console.log("winner", winner);
+
         if (doc.currentTurn === "O") {
           setDoc((doc) => {
             doc.winner = doc.user1;
-
             doc.gameStatus = false;
+            doc.loading1 = false;
+            doc.loading2 = false;
           });
         } else {
           setDoc((doc) => {
             doc.winner = doc.user2;
             doc.gameStatus = false;
+            doc.loading1 = false;
+            doc.loading2 = false;
           });
         }
       }
@@ -74,9 +78,12 @@ function Board() {
 
     // Check if all boxes are clicked (filled)
     if (count === 9 && doc.winner === "" && !winner) {
+      doc.socket.emit("deletePatches", doc.roomId);
       setDoc((doc) => {
         doc.draw = true;
         doc.gameStatus = false;
+        doc.loading1 = false;
+        doc.loading2 = false;
       });
     }
   };
@@ -84,55 +91,17 @@ function Board() {
   if (!doc.gameStatus) return <Result />;
   else {
     return (
-      <Row className="w-100" style={{ height: "50vh" }}>
+      <Row className="w-100  board" style={{ height: "56vh" }}>
         <Col xs={0} md={1}></Col>
         <Col
           xs={12}
           md={10}
-          className="bg-primary d-flex rounded flex-row py-3 justify-content-around align-content-around flex-wrap h-100  bg-white"
+          className="bg-primary d-flex my-board rounded flex-row py-3 justify-content-around align-content-around flex-wrap h-100  bg-white"
         >
-          {/* <Row>
-            <Col xs={4}>
-              <Square value={"1"} />
-            </Col>
-            <Col xs={4}>
-              <Square value={"2"} />
-            </Col>
-            <Col xs={4}>
-              <Square value={"3"} />
-            </Col>
-          </Row>
-          <Row>
-            <Col xs={4}>
-              <Square value={"1"} />
-            </Col>
-            <Col xs={4}>
-              {" "}
-              <Square value={"1"} />
-            </Col>
-            <Col xs={4}>
-              <Square value={"1"} />
-            </Col>
-          </Row>
-          <Row>
-            <Col xs={4}>
-              <Square value={"1"} />
-            </Col>
-            <Col xs={4}>
-              <Square value={"1"} />
-            </Col>
-            <Col xs={4}>
-              <Square value={"1"} />
-            </Col>
-          </Row> */}
           {boardList}
         </Col>
         <Col xs={0} md={1}></Col>
       </Row>
-
-      // <div className="d-flex rounded flex-row justify-content-md-around align-content-around flex-wrap h-50 w-50 bg-white">
-      //   {boardList}
-      // </div>
     );
   }
 }

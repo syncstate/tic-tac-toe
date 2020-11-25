@@ -22,6 +22,8 @@ const store = createDocStore(
     socket: socket,
     winner: "",
     roomId: "",
+    loading1: false,
+    loading2: false,
     draw: false,
     gameStatus: false,
   },
@@ -30,36 +32,44 @@ const store = createDocStore(
 
 store.dispatch(remote.enableRemote(""));
 
-// socket.emit("fetchDoc", "/currentValue");
-// socket.emit("fetchDoc", "/currentTurn");
-// socket.emit("fetchDoc", "/user1");
-// socket.emit("fetchDoc", "/user2");
-// socket.emit("fetchDoc", "/draw");
-// socket.emit("fetchDoc", "/winner");
-// socket.emit("fetchDoc", "/startScreen");
-// socket.emit("fetchDoc", "/gameStatus");
+socket.emit("fetchDoc", "/currentValue");
+socket.emit("fetchDoc", "/currentTurn");
+socket.emit("fetchDoc", "/user1");
+socket.emit("fetchDoc", "/user2");
+socket.emit("fetchDoc", "/winner");
+socket.emit("fetchDoc", "/roomId");
+socket.emit("fetchDoc", "/loading1");
+socket.emit("fetchDoc", "/loading2");
+socket.emit("fetchDoc", "/draw");
+socket.emit("fetchDoc", "/gameStatus");
 
 store.observe("doc", "/user1", (user1, change) => {
   if (!change.origin) {
-    console.log("user1 updated");
     socket.emit("change", "/user1", change);
+  }
+});
+store.observe("doc", "/loading1", (loading1, change) => {
+  if (!change.origin) {
+    socket.emit("change", "/loading1", change);
+  }
+});
+store.observe("doc", "/loading2", (loading2, change) => {
+  if (!change.origin) {
+    socket.emit("change", "/loading2", change);
   }
 });
 store.observe("doc", "/user2", (user2, change) => {
   if (!change.origin) {
-    console.log("user2 updated");
     socket.emit("change", "/user2", change);
   }
 });
 store.observe("doc", "/startScreen", (startScreen, change) => {
   if (!change.origin) {
-    console.log("start screen", change);
     socket.emit("change", "/startScreen", change);
   }
 });
 store.observe("doc", "/currentTurn", (currentTurn, change) => {
   if (!change.origin) {
-    console.log("current turn updating");
     socket.emit("change", "/currentTurn", change);
   }
 });
@@ -71,7 +81,6 @@ store.observe("doc", "/currentValue", (currentValue, change) => {
 
 store.observe("doc", "/winner", (winner, change) => {
   if (!change.origin) {
-    console.log("win patch");
     socket.emit("change", "/winner", change);
   }
 });
@@ -82,12 +91,10 @@ store.observe("doc", "/gameStatus", (gameStatus, change) => {
 });
 store.observe("doc", "/draw", (draw, change) => {
   if (!change.origin) {
-    console.log("draw patch");
     socket.emit("change", "/draw", change);
   }
 });
 socket.on("change", (path, patch) => {
-  console.log("sirji", patch);
   store.dispatch(remote.applyRemote(path, patch));
 });
 
