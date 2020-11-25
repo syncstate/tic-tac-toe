@@ -1,37 +1,76 @@
-var express = require("express");
-var socket = require("socket.io");
+const express = require("express");
+const cors = require("cors");
+const socket = require("socket.io");
 const { v4: uuidv4 } = require("uuid");
 const PatchManager = require("./PatchManager");
 const { SyncStateRemote } = require("@syncstate/remote-server");
 const remote = new SyncStateRemote();
-var app = express();
-var server = app.listen(8000, function () {
-  console.log("listening on port 8000");
-});
 
-var io = socket(server);
-var projectId = uuidv4();
-const socketsId = [];
+let app = express();
+app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 
-var patchManager = new PatchManager();
+let server = app.listen(8000);
 
-io.on("connection", function (socket) {
-  socketsId.push(socket.id);
+app.get("/", () => {});
+let io = socket(server, { pingTimeout: 100000, pingInterval: 3000 });
 
-  socket.emit("allUsers", socketsId);
+let patchManager = new PatchManager();
+
+let users = [];
+let prevRoom = null;
+io.on("connection", async (socket) => {
+  let noOfClients;
+  function noOfClientsInRoom(roomId, namespace) {
+    io.of("/")
+      .in(roomId)
+      .clients(function (error, clients) {
+        if (error) {
+          throw error;
+        }
+        noOfClients = clients.length;
+      });
+  }
+  socket.on("roomJoin", async () => {
+    if (prevRoom === null) {
+      const roomId = uuidv4();
+      socket.join(roomId);
+      socket.roomId = roomId;
+      prevRoom = roomId;
+      users.push(socket.id);
+      io.sockets.in(prevRoom).emit("roomJoined", prevRoom, users);
+    } else {
+      await noOfClientsInRoom(prevRoom, "/");
+
+      if (noOfClients === 1) {
+        socket.join(prevRoom);
+        users.push(socket.id);
+        socket.roomId = prevRoom;
+        io.sockets.in(prevRoom).emit("roomJoined", prevRoom, users);
+        users.length = 0;
+      } else {
+        const roomId = uuidv4();
+        socket.join(roomId);
+        users.push(socket.id);
+        socket.roomId = roomId;
+        prevRoom = roomId;
+        io.sockets.in(prevRoom).emit("roomJoined", prevRoom, users);
+      }
+    }
+  });
 
   socket.on("fetchDoc", (path) => {
     //get all patches
-    const patchesList = patchManager.getAllPatches(projectId, path);
+    const patchesList = patchManager.getAllPatches(socket.roomId, path);
+
     if (patchesList) {
       //send each patch to the client
       patchesList.forEach((change) => {
-        socket.emit("change", path, change);
+        socket.to(socket.roomId).emit("change", path, change);
       });
     }
   });
 
-  //patches recieved from the client
   socket.on("change", (path, change) => {
     change.origin = socket.id;
 
@@ -40,11 +79,20 @@ io.on("connection", function (socket) {
   });
 
   const dispose = remote.onChangeReady(socket.id, (path, change) => {
-    //store the patches in js runtime or a persistent storage
-    patchManager.store(projectId, path, change);
+    patchManager.store(socket.roomId, path, change);
 
     //broadcast the path to other clients
+    socket.broadcast.to(socket.roomId).emit("change", path, change);
+  });
 
-    socket.broadcast.emit("change", path, change);
+  socket.on("deletePatches", (roomId) => {
+    patchManager.deletePatches(roomId);
+  });
+
+  socket.on("disconnect", function () {
+    patchManager.deletePatches(socket.roomId);
+    socket.leave(socket.roomId);
+    if (users.length == 1) users.length = 0;
+    socket.broadcast.to(socket.roomId).emit("disconnected");
   });
 });
